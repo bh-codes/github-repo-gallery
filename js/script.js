@@ -7,6 +7,9 @@ const repoList = document.querySelector(".repo-list");
 const  repoInfoSection = document.querySelector(".repos");
 //section where individual repo data will appear
 const repoData = document.querySelector(".repo-data");
+//Back to Repo Gallery button
+const backToRepoButton = document.querySelector(".view-repos");
+const filterInput = document.querySelector(".filter-repos");
 
 
 const profileInfo = async function() {
@@ -30,10 +33,10 @@ const displayInfo = function(data) {
     <p><strong>Number of public repos:</strong> ${data.public_repos}</p>
   </div> `;
   overview.append(div);
-  repos();
+  fetchRepos();
 };
 
-const repos = async function() {
+const fetchRepos = async function() {
     const getRepo = await fetch (`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     const data = await getRepo.json();
     console.log(data)
@@ -41,6 +44,7 @@ const repos = async function() {
 };
 
 const displayRepo = function(repo) {
+    filterInput.classList.remove("hide");
     for (const item of repo) {
         const li = document.createElement("li");
         li.classList.add("repo");
@@ -84,4 +88,26 @@ const displaySpecificRepo = function(repoInfo, languages) {
     repoData.append(div);
     repoData.classList.remove("hide");
     repoInfoSection.classList.add("hide");
+    backToRepoButton.classList.remove("hide");
 };
+
+backToRepoButton.addEventListener("click", function() {
+    repoInfoSection.classList.remove("hide");
+    repoData.classList.add("hide");
+    backToRepoButton.classList.add("hide");
+});
+
+filterInput.addEventListener("input", function(e) {
+    const searchText = e.target.value;
+    
+    const repos = document.querySelectorAll(".repo");
+    const searchTextLower = searchText.toLowerCase();
+    for (const repo of repos) {
+        const repoLower = repo.innerText.toLowerCase();
+        if (repoLower.includes(searchTextLower)) {
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        };
+    };
+});
